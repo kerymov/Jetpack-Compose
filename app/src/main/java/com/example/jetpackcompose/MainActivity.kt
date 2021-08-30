@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -55,39 +57,41 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val constraints = ConstraintSet {
-                val greenBox = createRefFor("greenbox")
-                val redBox = createRefFor("redbox")
-                val guideline = createGuidelineFromTop(0.5f)
 
-                constrain(greenBox) {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    width = Dimension.value(100.dp)
-                    height = Dimension.value(100.dp)
-                }
+        }
+    }
+}
 
-                constrain(redBox) {
-                    top.linkTo(parent.top)
-                    start.linkTo(greenBox.end)
-                    end.linkTo(parent.end)
-                    width = Dimension.value(100.dp)
-                    height = Dimension.value(100.dp)
-                }
-                createHorizontalChain(greenBox, redBox)
-            }
-            ConstraintLayout(constraints, modifier = Modifier.fillMaxSize()) {
-                Box(
-                    modifier = Modifier
-                        .layoutId("greenbox")
-                        .background(Color.Green)
-                )
-                Box(
-                    modifier = Modifier
-                        .layoutId("redbox")
-                        .background(Color.Red)
-                )
+var i = 0
+
+@Composable
+fun SideEffectFunction() {
+    SideEffect {
+        i++
+    }
+    Button(onClick = {  }) {
+        Text("Click me $i")
+    }
+}
+
+@Composable
+fun DisposableEffectFunction(backPressedDispatcher: OnBackPressedDispatcher) {
+
+    val callback = remember {
+        object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+
             }
         }
+    }
+
+    DisposableEffect(key1 = backPressedDispatcher) {
+        backPressedDispatcher.addCallback(callback)
+        onDispose {
+            callback.remove()
+        }
+    }
+    Button(onClick = {  }) {
+        Text("Click me $i")
     }
 }
