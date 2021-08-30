@@ -57,41 +57,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val scaffoldState = rememberScaffoldState()
+            val scope = rememberCoroutineScope()
+            Scaffold(scaffoldState = scaffoldState) {
+                var counter by remember {
+                    mutableStateOf(0)
+                }
 
-        }
-    }
-}
-
-var i = 0
-
-@Composable
-fun SideEffectFunction() {
-    SideEffect {
-        i++
-    }
-    Button(onClick = {  }) {
-        Text("Click me $i")
-    }
-}
-
-@Composable
-fun DisposableEffectFunction(backPressedDispatcher: OnBackPressedDispatcher) {
-
-    val callback = remember {
-        object : OnBackPressedCallback(true) {
-            override fun handleOnBackPressed() {
-
+                if (counter % 5 == 0 && counter > 0) {
+                    LaunchedEffect(key1 = scaffoldState.snackbarHostState) {
+                        scaffoldState.snackbarHostState.showSnackbar("Hello")
+                    }
+                }
+                Button(onClick = { counter++ }) {
+                    Text("Click me: $counter")
+                }
             }
         }
-    }
-
-    DisposableEffect(key1 = backPressedDispatcher) {
-        backPressedDispatcher.addCallback(callback)
-        onDispose {
-            callback.remove()
-        }
-    }
-    Button(onClick = {  }) {
-        Text("Click me $i")
     }
 }
