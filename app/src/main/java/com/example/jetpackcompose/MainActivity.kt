@@ -50,6 +50,7 @@ import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import com.example.jetpackcompose.ui.theme.JetpackComposeTheme
 import com.example.jetpackcompose.ui.theme.Shapes
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -60,17 +61,18 @@ class MainActivity : ComponentActivity() {
             val scaffoldState = rememberScaffoldState()
             val scope = rememberCoroutineScope()
             Scaffold(scaffoldState = scaffoldState) {
-                var counter by remember {
-                    mutableStateOf(0)
+                val counter = produceState(initialValue = 0) {
+                    delay(3000L)
+                    value = 4
                 }
 
-                if (counter % 5 == 0 && counter > 0) {
+                if (counter.value % 5 == 0 && counter.value > 0) {
                     LaunchedEffect(key1 = scaffoldState.snackbarHostState) {
                         scaffoldState.snackbarHostState.showSnackbar("Hello")
                     }
                 }
-                Button(onClick = { counter++ }) {
-                    Text("Click me: $counter")
+                Button(onClick = { }) {
+                    Text("Click me: ${counter.value}")
                 }
             }
         }
