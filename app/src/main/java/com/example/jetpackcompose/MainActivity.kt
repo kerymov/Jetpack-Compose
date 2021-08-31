@@ -7,6 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -58,21 +60,43 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val scaffoldState = rememberScaffoldState()
-            val scope = rememberCoroutineScope()
-            Scaffold(scaffoldState = scaffoldState) {
-                val counter = produceState(initialValue = 0) {
-                    delay(3000L)
-                    value = 4
-                }
-
-                if (counter.value % 5 == 0 && counter.value > 0) {
-                    LaunchedEffect(key1 = scaffoldState.snackbarHostState) {
-                        scaffoldState.snackbarHostState.showSnackbar("Hello")
-                    }
-                }
-                Button(onClick = { }) {
-                    Text("Click me: ${counter.value}")
+            var sizeState by remember {
+                mutableStateOf(200.dp)
+            }
+            val size by animateDpAsState(
+                targetValue = sizeState,
+//                tween(
+//                    delayMillis = 300
+//                )
+//                spring(
+//                    Spring.DampingRatioHighBouncy
+//                )
+//                keyframes {
+//                    durationMillis = 5000
+//                    sizeState at 0 with LinearEasing
+//                    sizeState * 1.5f at 1000 with FastOutLinearInEasing
+//                    sizeState * 2f at 5000
+//                }
+            )
+            val infiniteTransition = rememberInfiniteTransition()
+            val color by infiniteTransition.animateColor(
+                initialValue = Color.DarkGray,
+                targetValue = Color.Green,
+                animationSpec = infiniteRepeatable(
+                    tween(durationMillis = 3000),
+                    repeatMode = RepeatMode.Reverse
+                )
+            )
+            Box(
+                modifier = Modifier
+                    .background(color)
+                    .size(size),
+                contentAlignment = Alignment.Center
+            ) {
+                Button(onClick = {
+                    sizeState += 50.dp
+                }) {
+                    Text("Increase Size")
                 }
             }
         }
